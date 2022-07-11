@@ -1,65 +1,96 @@
-/**
- * B-I-N-G-O
- *
- * A Bingo card contain 25 squares arranged in a 5x5 grid (five columns
- * and five rows). Each space in the grid contains a number between 1
- * and 75. The center space is marked "FREE" and is automatically filled.
- *
- * As the game is played, numbers are drawn. If the player's card has
- * that number, that space on the grid is filled.
- *
- * A player wins BINGO by completing a row, column, or diagonal of filled
- * spaces.
- *
- * Your job is to complete the function that takes a bingo card and array
- * of drawn numbers and return 'true' if that card has achieved a win.
- *
- * A bingo card will be 25 element array. With the string 'FREE' as the
- * center element (index 12). Although developers are unscrupulous, they
- * will pass valid data to your function.
- */
+window.onload = initAll;
+var usedNums = new Array(76);
 
-function checkForBingo (bingoCard, drawnNumbers) {
-  // this code for debug purposes, you can remove.
-  console.log('Drawn Numbers: ' + JSON.stringify(drawnNumbers));
 
-  for (let i=0, len=bingoCard.length; i<len; i++) {
-    let row = Math.floor(i/5);
-    let col = i % 5;
-   //  console.log(`${row},${col}: ${bingoCard[i]}`);
-  }
-
-  return false;
+function initAll() {
+	if (document.getElementById) {
+		document.getElementById("reload").onclick = anotherCard;
+		newCard();
+	}
+	else {
+		alert("Sorry, your browser doesn't support this script");
+	}
 }
 
-module.exports = checkForBingo;
 
-// here are some samples
+function newCard() {
+	for (var i=0; i<24; i++) {
+		setSquare(i);
+	}
+}
 
-// this should return true with diagonal + free
-checkForBingo(
-  [
-    8, 29, 35, 54, 65,
-    13, 24, 44, 48, 67,
-    9, 21, 'FREE', 59, 63,
-    7, 19, 34, 53, 61,
-    1, 20, 33, 46, 72
-  ],
-  [
-    8, 24, 53, 72
-  ]
-);
 
-// this should return false
-checkForBingo(
-  [
-   8, 29, 35, 54, 65,
-   13, 24, 44, 48, 67,
-   9, 21, 'FREE', 59, 63,
-   7, 19, 34, 53, 61,
-   1, 20, 33, 46, 72
-  ],
-  [
-    1, 33, 53, 65, 29, 75
-  ]
-);
+function setSquare(thisSquare) {
+	var currSquare = "square" + thisSquare;
+	var colPlace = new Array(0,0,0,0,0,1,1,1,1,1,2,2,2,2,3,3,3,3,3,4,4,4,4,4);
+	var colBasis = colPlace[thisSquare] * 15;
+	var newNum;
+
+	do {
+		newNum = colBasis + getNewNum() + 1;
+	}
+	while (usedNums[newNum]);
+    usedNums[newNum] = true;
+    document.getElementById(currSquare).innerHTML = newNum;
+    document.getElementById(currSquare).className = "";
+    document.getElementById(currSquare).onmousedown = toggleColor;
+}
+
+
+function getNewNum() {
+	return Math.floor(Math.random() * 15);
+}
+
+
+function anotherCard() {
+	for (var i=1; i<usedNums.length; i++) {
+		usedNums[i] = false;
+	}
+	newCard();
+	return false;
+}
+
+
+function toggleColor(evt) {
+	if (evt) {
+		var thisSquare = evt.target;
+	}	else {
+		var thisSquare = window.event.srcElement;
+	}
+	if (thisSquare.className == "") {
+		thisSquare.className = "pickedBG";
+	}	else {
+		thisSquare.className = "";
+	}
+	checkWin();
+}
+
+
+function checkWin() {
+	var winningOption = -1;
+	var setSquares = 0;
+	var winners = new Array(31,992,15360,507904,541729,557328,1083458,2162820,4329736,8519745,8659472,16252928);
+
+	for (var i=0; i<24; i++) {
+		var currSquare = "square" + i;
+		if (document.getElementById(currSquare).className != "") {
+			document.getElementById(currSquare).className = "pickedBG";
+			setSquares = setSquares | Math.pow(2,i);
+		}
+	}
+
+	for (var i=0; i<winners.length; i++) {
+		if ((winners[i] & setSquares) == winners[i]) {
+			winningOption = i;
+		}
+	}
+
+	if (winningOption > -1) {
+		for (var i=0; i<24; i++) {
+			if (winners[winningOption] & Math.pow(2,i)) {
+				currSquare = "square" + i;
+				document.getElementById(currSquare).className = "winningBG";
+			}
+		}
+	}
+};

@@ -1,0 +1,27 @@
+body {
+  background: #1abc9c;
+  display: flex;
+  height: 100vh;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+th, td {
+	padding: 10px;
+	border: 2px #666 solid;
+	text-align: center;
+	width: 20%;
+}
+
+#free, .pickedBG {
+	background-color: #f66;
+}
+
+.winningBG {
+
+}
